@@ -3,22 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Melisamm'a Sürpriz</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Melisamm - Mutlu Yıllar</title>
+    <style>
+        body {
+            margin: 0; padding: 0;
+            background-color: #0d0d0d;
+            color: white; font-family: 'Arial', sans-serif;
+            height: 100vh; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* Soru İşaretleri ve Kalp Konteynırları */
+        #question-marks, #hearts-container {
+            position: absolute; width: 100%; height: 100%;
+            z-index: 1; pointer-events: none;
+        }
+
+        .question-mark {
+            position: absolute; color: rgba(255, 255, 255, 0.2);
+            font-size: 2rem; animation: float 4s linear infinite;
+        }
+
+        .heart {
+            position: absolute; color: #ff4d4d;
+            font-size: 1.5rem; animation: heartFloat 3s ease-in forwards;
+            z-index: 5;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(110vh); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-10vh); opacity: 0; }
+        }
+
+        @keyframes heartFloat {
+            0% { transform: translateY(100vh) scale(1); opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        .main-container { z-index: 10; text-align: center; }
+
+        #countdown {
+            font-size: 4rem; font-weight: bold; color: #ff4d4d;
+            text-shadow: 0 0 20px rgba(255, 77, 77, 0.6); margin-bottom: 20px;
+        }
+
+        #gift-box { font-size: 100px; transition: all 0.8s ease; }
+        .open { transform: scale(1.3) rotate(10deg); }
+
+        #surprise-message {
+            font-size: 2.5rem; color: #ffd700; margin-top: 20px;
+            opacity: 0; transform: scale(0.5); transition: all 1s ease;
+            text-shadow: 0 0 15px gold;
+        }
+        #surprise-message.show { opacity: 1; transform: scale(1); }
+    </style>
 </head>
 <body>
 
-    <div id="question-marks-container"></div>
+    <div id="question-marks"></div>
+    <div id="hearts-container"></div>
 
     <div class="main-container">
-        <div id="countdown">00:00:00</div>
-
-        <div class="gift-area">
-            <div id="gift-box" class="gift-box">🎁</div>
-            <h1 id="surprise-message">Mutlu Yıllar Melisamm 💖</h1>
-        </div>
+        <div id="countdown">Hesaplanıyor...</div>
+        <div id="gift-box">🎁</div>
+        <h1 id="surprise-message">Mutlu Yıllar Melisamm 💖</h1>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // GERÇEK HEDEF: 1 Ocak 2026 Saat 00:00:00
+        const target = new Date("January 1, 2026 00:00:00").getTime();
+
+        const qContainer = document.getElementById('question-marks');
+        
+        // Soru işaretlerini başlat
+        let qInterval = setInterval(() => {
+            const q = document.createElement('div');
+            q.className = 'question-mark';
+            q.innerText = '?';
+            q.style.left = Math.random() * 100 + 'vw';
+            qContainer.appendChild(q);
+            setTimeout(() => q.remove(), 4000);
+        }, 300);
+
+        // Kalp yağmuru fonksiyonu
+        function startHearts() {
+            const hContainer = document.getElementById('hearts-container');
+            setInterval(() => {
+                const h = document.createElement('div');
+                h.className = 'heart';
+                h.innerText = '❤️';
+                h.style.left = Math.random() * 100 + 'vw';
+                hContainer.appendChild(h);
+                setTimeout(() => h.remove(), 3000);
+            }, 200);
+        }
+
+        // Sayaç sistemi
+        const timer = setInterval(() => {
+            const currentTime = new Date().getTime();
+            const diff = target - currentTime;
+
+            if (diff > 0) {
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const m = Math.floor((diff / (1000 * 60)) % 60);
+                const s = Math.floor((diff / 1000) % 60);
+                
+                // Eğer 1 günden fazla varsa günü de yaz, yoksa saat:dk:sn
+                if(d > 0) {
+                    document.getElementById('countdown').innerText = d + "g " + (h<10?"0"+h:h)+":"+(m<10?"0"+m:m)+":"+(s<10?"0"+s:s);
+                } else {
+                    document.getElementById('countdown').innerText = (h<10?"0"+h:h)+":"+(m<10?"0"+m:m)+":"+(s<10?"0"+s:s);
+                }
+            } else {
+                // --- GECE YARISI OLDUĞUNDA ---
+                clearInterval(timer);
+                clearInterval(qInterval);
+                document.getElementById('countdown').style.display = 'none';
+                
+                // Soru işaretlerini temizle
+                qContainer.innerHTML = '';
+                
+                // Hediye patlaması ve Kalpler
+                setTimeout(() => {
+                    const box = document.getElementById('gift-box');
+                    box.innerHTML = '🎊';
+                    box.classList.add('open');
+                    
+                    document.getElementById('surprise-message').classList.add('show');
+                    startHearts();
+                }, 500);
+            }
+        }, 1000);
+    </script>
 </body>
 </html>
